@@ -1,0 +1,47 @@
+#!/bin/sh
+# $RCSfile: viman,v $$Revision: 950317.1 $
+#
+# viman [man options and files]
+#
+# A wrapper for the man command.  It allows viewing of a man
+# page from inside vi instead of the default sequential display.
+# It deletes control characters.
+#
+# It treats perl specially.  Since the authors had the bad taste
+# to put the perl man pages in multiple files, they are concatenated
+# together first before being displayed.  This may take a while,
+# but it allows regex searching through all of them at once.
+#
+# Files are cached in $TMPDIR.  Note the Perl program embedded in
+# the sh string in the function manperl.
+#
+
+manperl(){
+   echo Executing ...
+   echo $* \> $MANFILE
+   $* | perl -ne '
+      for(;;){
+         next if s/(.)[\b]\1/$1/g;
+         next if s/_[\b]|[\b]_//g;
+         next if s/o[\b]\+|\+[\b]o/\+/g;
+         last;
+      };
+      /\S/ ? ( $n = 0 ) : $n++;
+      print if $n < 2;
+   ' > $MANFILE
+}
+
+MANDIR=${TMPDIR:=/tmp}
+if [ ! -d $MANDIR ] ; then mkdir $MANDIR ; fi
+if [ ! -d $MANDIR ] ; then MANDIR=/tmp ; fi
+MANFILE=$MANDIR/=man=.`echo $* | sed 's/ /./g'`
+PERL=/usr/local/perl5.003/man
+if [ ! -r $MANFILE ] ; then
+   echo $MANFILE
+   echo $1
+   case $1 in
+      perl*) manperl nroff -man $PERL/*/* ;;
+      *) manperl man $* ;;
+   esac
+fi
+view $MANFILE

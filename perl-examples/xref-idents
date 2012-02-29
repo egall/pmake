@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+# $RCSfile: solution_asgt1.perl,v $$Revision: 940420.1 $
+#
+
+$alphaset = "A-Za-z_";
+
+$file = $ARGV[0];
+while( <> ){
+   $words{ "$& [$file]" } .= " $." while s/[$alphaset][0-9$alphaset]*//;
+   close( ARGV ), $file = $ARGV[0] if eof;
+};
+
+for $word( sort keys %words ){
+   print $word, $words{ $word }, "\n";
+};
+
+

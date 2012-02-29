@@ -1,0 +1,23 @@
+#!/usr/local/bin/perl
+# $RCSfile: solution_asgt1.perl,v $$Revision: 940420.1 $
+#
+
+sub lex{
+   ( $aa = $a ) =~ s/.*/\L$&/;
+   ( $bb = $b ) =~ s/.*/\L$&/;
+   return ( $cc = $aa cmp $bb ) ? $cc : $a cmp $b;
+};
+while( <> ){
+   $words{ $& } .= " $." while s/\w+//;
+};
+for $word( sort lex keys %words ){
+   $line = sprintf( "%-19s", $word ) . $words{ $word };
+   while( $line =~ /.{80}/ ){
+      $line =~ s/^(.{1,79}) /' ' x 20/e
+      || $line =~ s/^([^ ]+) /' ' x 20/e;
+      print $1, "\n";
+   };
+   print $line, "\n";
+};
+
+

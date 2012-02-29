@@ -1,0 +1,19 @@
+#!/usr/local/bin/perl5
+
+# `ls' all files in . newer than $ARGV[0] days.
+# `find' does not works here since it measures time in
+# integer days.
+
+$days = $ARGV[0];
+$days = 0.5 unless defined $days;
+$oldest = $^T - $days * 24 * 3600;
+
+opendir( DIR, '.' ) || die "Can't open . -- $!";
+
+for $filename( grep( /^[^.]/, sort readdir( DIR ))){
+   ( $atime, $mtime, $ctime ) = ( stat( $filename ))[ 8 .. 10 ];
+   print "$filename\n" if $mtime > $oldest;
+};
+
+closedir( DIR );
+

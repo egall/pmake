@@ -1,0 +1,25 @@
+#!/usr/local/bin/perl -w
+# $RCSfile: keep,v $$Revision: 970403.105301 $
+#
+# Synopsis:  keep file...
+#
+# Purpose:   accepts a list of file arguments and makes a month,
+#            a day, and a second backup copy with the current
+#            timestamp.  Warning:  uses up disk space fast, so the
+#            seconds copies should be deleted frequently.  RCS is
+#            far more efficient, but this is trivial to use.
+#
+use POSIX qw( strftime );
+@tm = localtime( $^T );
+$month = "%y%m+%h";
+$day   = "%y%m%d+%a";
+$time  = "%y%m%d.%H%M%S";
+print STDERR "Usage: $0 files...\n" unless @ARGV;
+while( $file = shift @ARGV ){
+   for $format( $month, $day, $time ){
+      $stamp = strftime( $format, @tm );
+      $command = "cp $file $file.$stamp";
+      print "% $command\n";
+      print `$command`;
+   };
+};

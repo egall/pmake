@@ -1,0 +1,25 @@
+#!/usr/local/bin/perl -w
+# $Id: calc,v 320.1 2002-01-04 17:51:04-08 - - $
+#
+# NAME
+#    calc
+#
+# SYNOPSIS
+#    calc [exprs...]
+#
+# DESCRIPTION
+#    Read each line, evaluate it as a Perl expression, and
+#    print the value.  If @ARGV is given, treat each element
+#    of @ARGV as a line.  Each input line or @ARGV element is
+#    a Perl expression, except that something matching the
+#    pattern /\#(\d+)/ refers to the value of line $1 and a
+#    match of /\#/ is the value of the most recent line.
+#
+
+$NAN = 1e1000/1e1000;
+$INPUT = @ARGV ? 'shift @ARGV' : '<>';
+while( $CALC = eval( $INPUT )){
+   $CALC =~ s/\#(\d+)?/"\$CALC[".(defined($1)?$1:$#CALC)."]"/xge;
+   push( @CALC, $CALC = eval( $CALC ) || $NAN );
+   printf "#%d=\t%.15g\n%s", $#CALC, $CALC, $@;
+};

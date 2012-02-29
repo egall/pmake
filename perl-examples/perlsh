@@ -1,0 +1,18 @@
+#!/usr/local/bin/perl
+
+# Poor man's perl shell.
+
+# Type two carriage returns every time you want to evaluate.
+# Note that it must be a complete perl statement.
+# Don't type double carriage returns in the middle of a loop.
+
+$/ = "\n\n";	# set paragraph mode
+$perlshell'linesep = "\n";
+while ($perlshell'command = <>) {
+    $/ = $perlshell'linesep;
+    eval $perlshell'command;
+    print $@ || "\n";
+    $perlshell'linesep = $/;
+    $/ = '';
+}
+

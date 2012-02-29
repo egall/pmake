@@ -1,0 +1,9 @@
+#!/usr/local/bin/perl5
+# $RCSfile: yes,v $$Revision: 970403.105438 $
+#
+# yes [ expletive ]
+# - Solaris is missing the yes command.
+#
+$message = join( ' ', @ARGV );
+$message = "y" unless $message;
+print "$message\n" while 1;

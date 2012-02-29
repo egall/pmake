@@ -1,0 +1,14 @@
+#!/usr/local/bin/perl -w
+
+$QUEUE = "$ENV{ 'HOME' }/.Q";
+mkdir( $QUEUE, 0700 ) unless -d $QUEUE;
+$seq = 0;
+for $file( @ARGV ){
+   $command = sprintf( "cp %s %s/%08X%02X.ps\n",
+                       $file, $QUEUE, $^T, $seq++ );
+   print "$command";
+   print `$command`;
+};
+print "Directory $QUEUE:\n";
+print `ls -la $QUEUE`;
+

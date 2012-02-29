@@ -1,0 +1,2 @@
+#!/usr/local/bin/perl
+print $d = "-" x 30, "cut-here$d\n";
