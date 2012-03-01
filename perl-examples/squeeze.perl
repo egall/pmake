@@ -1,4 +1,5 @@
 #!/usr/local/bin/perl -00p
+# $Id: squeeze.perl,v 358.1 2005-10-28 18:46:07-07 - - $
 #
 # NAME
 #    squeeze - squeeze out multiple empty lines
