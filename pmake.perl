@@ -40,10 +40,10 @@ my $readfile = "Makefile";
 
 open FILE, "<$readfile" or die "$0: $readfile: $!";
 my @readfile = <FILE>;
+my $ID;
 
 
 while( <@readfile> ){
-   printf "%s %4d:\t%s", $readfile, $., $_;
    for(;;){
       m/^$/ && last;
       s/^\n// && do{
@@ -63,8 +63,9 @@ while( <@readfile> ){
             next;
          };
       s/^(?!\d)\w+// && do{
-#            ( $ID = $& ) =~ s/.*/\L$&/;
-            print "\t\tIdent:\t|$&|\n";
+            ( $ID = $& ) =~ s/.*/\L$&/;
+            print "\t\tIdent:\t|$ID|\n";
+            print "\t\tWhole line \t|$&|\n";
             next;
          };
       s/^(\d+\.?\d*|\.\d+)([Ee][+-]?\d+)?// && do{
@@ -75,10 +76,10 @@ while( <@readfile> ){
             print "\t\tOper:\t|$&|\n";
             next;
          };
-      s/^[,:\[\]()]// && do{
-            print "\t\tPunct:\t|$&|\n";
-            next;
-         };
+#      s/^[,:\[\]()]// && do{
+#            print "\t\tPunct:\t|$&|\n";
+#            next;
+#         };
       s/^.// && do{
             print "\t\tError:\t|$&|\n";
             next;
