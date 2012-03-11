@@ -32,59 +32,73 @@ my %OPTS;
 getopts ("abcho:p:q:", \%OPTS);
 print $USAGE and exit if $OPTS{'h'};
 
+my %macro_hash = ();
+my %target_hash = ();
+my @has_pre = ();
+my %cmd_hash = ();
+my $previous_target = "";
+
+
 print "$0: -$_ = $OPTS{$_}\n" for sort keys %OPTS;
 print "$0: ARGV[$_]=$ARGV[$_]\n" for 0 .. $#ARGV;
 
 $0 =~ s|.*/||;
 my $readfile = "Makefile";
 
-open FILE, "<$readfile" or die "$0: $readfile: $!";
-my @readfile = <FILE>;
+open my $file, $readfile or die "$0: $readfile: $!";
 my $ID;
 
 
-while( <@readfile> ){
-   for(;;){
-      m/^$/ && last;
-      s/^\n// && do{
-            print "\t\tNewline\n";
-            next;
-         };
-      s/^(?!\n)\s+// && do{
-            # Ignore white space |$&|
-            next;
-         };
-      s/^#.*// && do{
-            # Ignore comments too |$&|
-            next;
-         };
-      s/^([`"'])(((?!\1).)*)\1?// && do{
-            print "\t\tString:\t|$2|\n";
-            next;
-         };
-      s/^(?!\d)\w+// && do{
-            ( $ID = $& ) =~ s/.*/\L$&/;
-            print "\t\tIdent:\t|$ID|\n";
-            print "\t\tWhole line \t|$&|\n";
-            next;
-         };
-      s/^(\d+\.?\d*|\.\d+)([Ee][+-]?\d+)?// && do{
-            print "\t\tNumber:\t|$&|\n";
-            next;
-         };
-      s/^(<=?|>=?|\/?=|[-+*%^])// && do{
-            print "\t\tOper:\t|$&|\n";
-            next;
-         };
-#      s/^[,:\[\]()]// && do{
-#            print "\t\tPunct:\t|$&|\n";
-#            next;
-#         };
-      s/^.// && do{
-            print "\t\tError:\t|$&|\n";
-            next;
-         };
-      print "\t\tThis can't happen |$_|\n";
-   };
+while( defined(my $line = <$file>) ){
+   if($line !~ /^#.+/){
+      if($line =~ /\s*(\S+)\s*=\s+(.+)/){
+            my $macro = $1;
+            my $value = $2;
+            my @value_split = ();
+            @value_split = split(" ", $value);
+            $macro_hash{$macro} = [@value_split];
+            print "macro = $macro\nvalue = $value\n";
+      }
+      elsif($line =~ /\s*(\S+)\s*:.*/ and $line !~ /\t\s*.+/){
+            my $target = $1;
+            $previous_target = $target;
+            if($line =~ /.+:\s+(.+)/){
+                my @value_split = ();
+                @value_split = split(" ", $1);
+                $target_hash{$target} = [@value_split];
+                push(@has_pre, $target);
+            }
+            else{
+                $target_hash{$target} = "";
+            }
+            print "Target =  $target\n";
+      }   
+      elsif($line =~ /\t\s*(.+)/){
+            print "Command:\n";
+            my $cmd = $1;
+            my @value_split = ();
+            if( exists $cmd_hash{$previous_target}){
+                @value_split = split(" ", $cmd);
+                push(@{$cmd_hash{$previous_target}}, @value_split);
+                push(@{$cmd_hash{$previous_target}}, "\n");
+            }
+            else{
+                $cmd_hash{$previous_target} = ();
+                @value_split = split(" ", $cmd);
+                push(@{$cmd_hash{$previous_target}}, @value_split);
+                push(@{$cmd_hash{$previous_target}}, "\n");
+            }
+            print $line;
+      }
+   }else{
+      print "Comment:\n";
+      print $line;
+   }
+     
    close ARGV if eof;
 }
+print "############# Macro Hash ###########\n";
+for my $macros (keys %macro_hash){
+    print "$macros: @{ $macro_hash{$macros} }\n";
+}
+print "############# target hash ########\n";
