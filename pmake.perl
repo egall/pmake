@@ -15,15 +15,16 @@ $SIG{'__DIE__'} = sub { warn @_; exit; };
 #    $0 - pmake
 #
 # SYNOPSIS
-#    $0 [-abcopq] [file...]
+#    $0 [-h]   - for help 
+#    $0        - to make
+#    $0 clean  - to clean
+#    $0 submit - to submit
 #
 # DESCRIPTION
 #    Performs make on given directory
 #
 # OPTIONS
 #    -h    print help and exit
-#    -abc  flags not requiring options
-#    -opq  flags requiring arguments
 #
 __END_USAGE__
 
@@ -34,11 +35,6 @@ print $USAGE and exit if $OPTS{'h'};
 
 my $action = "";
 $action = $ARGV[0] if $ARGV[0];
-my %macro_hash = ();
-my %target_hash = ();
-my @has_pre = ();
-my %cmd_hash = ();
-my $previous_target = "";
 
 
 
@@ -51,6 +47,11 @@ my $readfile = "Makefile";
 open my $file, $readfile or die "$0: $readfile: $!";
 my $ID;
 
+my %macro_hash = ();
+my %target_hash = ();
+my %cmd_hash = ();
+my @has_pre = ();
+my $previous_target = "";
 
 while( defined(my $line = <$file>) ){
    if($line !~ /^#.+/){
@@ -129,10 +130,8 @@ foreach my $tar (@has_pre){
 foreach my $tar (keys %cmd_hash){
     if($tar =~ /\$\{([^\}]+)\}/){
         my @replace_target = @{$macro_hash{$1}};
-        print "replace target @replace_target\n";
         my $replace = "";
         foreach my $str (@replace_target){
-            print "str = $str\n";
             $replace = $str;
         }
         my @replace_list = @{$cmd_hash{$tar}}; 
@@ -173,33 +172,19 @@ foreach my $targ (keys %cmd_hash){
 sub replace_macro {
     my @line = @{$_[0]};
     my $macro_hash = $_[1];
-    my $done_string = "";
     for(my $count = 0; $count < @line; $count++){
        my $value = $line[$count];
        if ($value =~ /(\S+)?\$\{([^\}]+)\}(\S+)?/){
 	  my $pre = $1;
 	  my $post = $3;
-          print "money 2 = $2\n";
-          if ($2 eq "MAKE"){
-              my @make_list = ("pmake");
-              splice @line, $count, 1, @make_list;
-          }
-          else{
-              my @replace_list = @{$macro_hash->{$2}};
-	      $replace_list[0] = $pre . $replace_list[0] if $pre;
-	      $replace_list[-1] = $replace_list[-1] . $post if $post;
-              splice @line, $count, 1, @replace_list;
-          }
+          my @replace_list = @{$macro_hash->{$2}};
+	  $replace_list[0] = $pre . $replace_list[0] if $pre;
+	  $replace_list[-1] = $replace_list[-1] . $post if $post;
+          splice @line, $count, 1, @replace_list;
 		 }
        elsif ($value =~ /\$\{([^\}]+)\}/){
-          if ($1 eq "MAKE"){
-              my @make_list = ("pmake");
-              splice @line, $count, 1, @make_list;
-          }
-          else{
-              my @replace_list = @{$macro_hash->{$1}};
-              splice @line, $count, 1, @replace_list;
-          }
+          my @replace_list = @{$macro_hash->{$1}};
+          splice @line, $count, 1, @replace_list;
        }
     }
     return @line;
