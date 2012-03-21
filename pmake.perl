@@ -41,7 +41,6 @@ my %cmd_hash = ();
 my $previous_target = "";
 
 
-print "Action = $action\n";
 
 print "$0: -$_ = $OPTS{$_}\n" for sort keys %OPTS;
 print "$0: ARGV[$_]=$ARGV[$_]\n" for 0 .. $#ARGV;
@@ -96,26 +95,17 @@ while( defined(my $line = <$file>) ){
       }
    }else{
 #      print "Comment:\n";
-      print $line;
+#      print $line;
    }
      
    close ARGV if eof;
 }
 for my $macros (keys %macro_hash){
-    print "$macros: @{ $macro_hash{$macros} }\n";
     my @check_list = @{$macro_hash{$macros}};
     @check_list = &replace_macro(\@check_list, \%macro_hash);
     $macro_hash{$macros} = [@check_list];
 }
 
-print "####### after macro sub\n";
-
-for my $macros (keys %macro_hash){
-    print "$macros: @{ $macro_hash{$macros} }\n";
-}
-
-
-print "######################################## \n";
 
 foreach my $tar (@has_pre){
     if($tar =~ /\$\{([^\}]+)\}/){
@@ -139,8 +129,10 @@ foreach my $tar (@has_pre){
 foreach my $tar (keys %cmd_hash){
     if($tar =~ /\$\{([^\}]+)\}/){
         my @replace_target = @{$macro_hash{$1}};
+        print "replace target @replace_target\n";
         my $replace = "";
         foreach my $str (@replace_target){
+            print "str = $str\n";
             $replace = $str;
         }
         my @replace_list = @{$cmd_hash{$tar}}; 
@@ -174,44 +166,9 @@ foreach my $targ (keys %cmd_hash){
           pop @exec_cmd;
           system(@exec_cmd);
       }
-      else{
-          print "action not found\n";
-      }
     }
 }
 
-my $myTarget = "";
-
-my @pre_total = ($myTarget);
-my $has_tar = grep /$myTarget/, @has_pre;
-if($has_tar){
-    my @start_pre = @{$target_hash{$myTarget}};
-    &get_pre(\@start_pre);
-}
-
-foreach my $exe (@pre_total){
-    if(exists $cmd_hash{$exe}){
-        my @cmd_list = @{$cmd_hash{$exe}};
-        my $cmd_string = ""; 
-        foreach my $cmd(@cmd_list){
-            if($cmd ne "\n" and $cmd ne "-"){
-                $cmd_string = $cmd_string . $cmd . " ";
-            }
-            elsif ($cmd eq "\n"){
-                $cmd_string =~ s/\s+$//;
-                print "Executing:\n$cmd_string\n";
-                system($cmd_string);
-                if($? > 0){
-                    my @cmd_list = split(" ", $cmd_string);
-                    $EXITCODE = $?;
-                    die "$0:$cmd_list[0] returned exit code $EXITCODE:$!\n";
-                }
-                $cmd_string = "";
-            }
-        }    
-    }
-}
-        
 
 sub replace_macro {
     my @line = @{$_[0]};
@@ -222,6 +179,7 @@ sub replace_macro {
        if ($value =~ /(\S+)?\$\{([^\}]+)\}(\S+)?/){
 	  my $pre = $1;
 	  my $post = $3;
+          print "money 2 = $2\n";
           if ($2 eq "MAKE"){
               my @make_list = ("pmake");
               splice @line, $count, 1, @make_list;
@@ -247,14 +205,3 @@ sub replace_macro {
     return @line;
 }
 
-sub get_pre {
-    my @pre_list = @{$_[0]};
-    foreach my $tar (@pre_list){
-        my $has_tar = grep /$tar/, @has_pre;
-        if($has_tar){
-            my @pass_pre = @{$target_hash{$tar}};
-            &get_pre(\@pass_pre);
-        }
-        push(@pre_total, $tar);
-    }
-}
