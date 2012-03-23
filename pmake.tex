@@ -1,0 +1,80 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage[T2A]{fontenc}
+\usepackage[english]{babel}
+\usepackage[pdftex, unicode]{hyperref}
+
+\title{Pmake: Make, written in Perl}
+\date{May, 18, 2011}
+\author{Erik Q. Steggall}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The goal of my project was to learn Perl. I decided to recreate the Make language using Perl. My program is capable of handling a subset of the Make language. It is designed to read a Makefile and parse the macros, targets, and commands within. It substitutes the macros for values, then compiles the source, building executables and libraries.\\
+\end{abstract}
+
+\section{Purpose}
+The motivation for my project was to learn Perl. I have been interested in Perl for a long time, but have not had the opportunity to write experimentally until this class. My main goal was to get familiar with Perl's text parsing, as it is one of the major features of the language. Alternatively, I was also glad to get a chance to work with Makefiles, as I have previously struggled with creating and modifying them.\\
+
+\section{Makefiles and the Make language}
+Make is a declarative language. It is used to build executable programs and libraries from source code. Makefiles consist of macros, dependencies, and commands. Make works by parsing the Makefile for dependencies, it creates a fragment for each dependency it finds, then it links all of the fragments back together in the main to create an executable.\\ 
+
+\subsection{Macros}
+Macros are defined by an equals sign in the line. On the left side of the equals sign is the macro. Everything to the right of the equals are values that the macro is replacing.\\ 
+\subsection{Dependencies and Commands}
+	Dependencies are defined by a colon in the line. On the left side of the colon is the target, on the left side of the colon is the components that the target requires in order to build. After a dependency line there will be one or more line that are the commands related to the dependency. When the dependencies requirements are fulfilled the commands associated with it are executed.\\
+\section{Perl's Regular Expressions}
+
+Regular expressions in Perl are one of Perl's strengths. Regular expressions condense a lot of logic down into single lines.\\
+Here is the list of regular expressions I used for this project.\\
+
+\begin{table}
+    \begin{tabular}{|c|c|}
+        \hline
+        + & One or more of the preceding character \\
+        * & Zero or more of the preceding character \\
+        ? & Zero or one of the preceding character \\
+        . & Any character except newline\\
+        \verb|^| & Beginning of line \\ 
+        \verb|\t| & Match tab\\
+        \$ & End of line \\ 
+        \verb|[]| & set of characters\\
+        () & Group by precedence\\
+        \verb|\s| & match whitespace\\
+        \verb|\S| & match non-whitespace\\
+        \verb|\| & Escape character\\
+        \hline
+    \end{tabular}
+\end{table}
+Note: It is not all of the regular expressions that are in Perl.\\
+
+\section{Perl's structures}
+Perl takes away all of the headaches that structures cause in C. Perl encourages the use of hash tables by making them very easy to work with. An entire hash table can be printed out in a single line of code. Conversely, Perl can access a specific field within a hash table in a single line as well. The syntax for accessing a single element is a bit more complex: The complexity of lines such as \verb|"my @check_list = @{$macro_hash{$macros}};"| was daunting at first, but it is actually quite elegant. Larry Wall's background in linguistics gives a specific meaning to everything, as I notice with Perl's regex, once broken down, it all makes perfect sense.\\
+
+\section{System calls}
+
+My project did not require heavy use of system calls, however I got a chance to explore with them when I was learning the syntax. Perl integrates Unix system calls into the language seamlessly. Tools I'm familiar with, such as grep, can be called in the middle of the code! This project has inspired me to write more Perl scripts that require system calls.
+
+
+\section{Conclusion and future goals}
+Perl is a very useful language to know. Perl's regular expressions and structures may look complicated, but can be broken down into smaller, simpler pieces, which condenses a lot of logic into single lines of code. Perl is a great language for writing small scripts and for prototyping larger projects: It is powerful enough to write out logic without having too much code in the way, and also capable of being very precise. I am excited for future projects, I intend to experiment more with system calls, as well as the networking features that Perl has.  
+
+\begin{thebibliography}{1}
+
+	\bibitem{Usingp} Jonathan Duff, Moritz Lenz, Carl Masak, Patrick Michaud, Jonathan Worthington "Using Perl6", Creative Commons July 2009. 
+
+        \bibitem{Modernp} Chromatic, "Modern Perl", Onyx Neon Press, July 2009.
+
+        \bibitem{Essentialp} Nick Parlante, "Essential Perl", Stanford Press, 2000.
+
+        \bibitem{Wikipedia} Stuart Feldman, "Make", 8 March 2012, http://en.wikipedia.org/wiki/Make\_(software).    
+
+        \bibitem{WMackey} Wesley Mackey, "Mackey's Examples" 13 January 2012.
+
+        
+
+\end{thebibliography}
+
+\end{document}
+
